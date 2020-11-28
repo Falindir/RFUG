@@ -7,7 +7,7 @@ v0.1
 ## Install
 
 ```
-sudo pip install flask werkzeug.exceptions yaml numpy
+sudo pip install Flask Werkzeug PyYAML numpy markdown
 ```
 
 ## Run
@@ -19,6 +19,8 @@ flask run
 ```
 
 ## Usage
+
+0. With URL: <a target="_blank" href="http://localhost:5000/api/users?n=10">link</a>
 
 1. With curl:<br/>
     ```curl -i http://localhost:5000/api/users?n=10```

@@ -5,6 +5,7 @@ import uuid
 import yaml
 import os.path
 import numpy
+import markdown.extensions.fenced_code
 
 app = Flask(__name__)
 
@@ -161,7 +162,8 @@ def handle_exception(e):
     
 @app.route('/') 
 def home():
-    return "<h1>Random French User Generator</h1>"
+    homePage = open("README.md", "r")
+    return markdown.markdown(homePage.read(), extensions=["fenced_code"])
 
 if __name__ == '__main__':
     app.run(host= '0.0.0.0',debug=DEBUG)
