@@ -7,7 +7,7 @@ v0.2
 ## Install
 
 ```
-sudo pip install Flask Werkzeug PyYAML numpy markdown csv
+sudo pip install Flask Werkzeug PyYAML numpy markdown
 ```
 
 ## Run
