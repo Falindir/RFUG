@@ -6,6 +6,7 @@ import yaml
 import os.path
 import numpy
 import markdown.extensions.fenced_code
+import csv
 
 app = Flask(__name__)
 
@@ -18,6 +19,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 femaleFirstNamePath = os.path.join(basedir, 'data/female_first_name.yaml')
 maleFirstNamePath = os.path.join(basedir, 'data/male_first_name.yaml')
 lastNamePath = os.path.join(basedir, 'data/last_name.yaml')
+regionPath = os.path.join(basedir, 'data/region.csv')
 
 def printd(message):
     if(DEBUG):
@@ -29,6 +31,17 @@ def loadName(path):
         with open(path, 'r') as yaml_stream:
             data = yaml.load(yaml_stream, Loader=yaml.SafeLoader)['name']
             return sorted(data, key=lambda k: random.random())
+
+def loadRegion(path):
+    data = []
+    if os.path.exists(path) and os.path.isfile(path):
+        with open(path) as csvfile:
+            reader = csv.reader(csvfile, delimiter=',')
+            next(reader, None)  # skip the headers
+            for row in reader:
+                data.append(row)
+    
+    return data
 
 def getGender(seed, args):
 
@@ -83,8 +96,63 @@ def getAge(seed, args):
 
     return 0
 
+def getRegion(seed, regions, args):
 
-def generateUser(seed, id, femaleFirstName, maleFirstName, lastnames, args):
+    region = []
+    size = len(regions)
+
+    if "region" in args and args["region"] != "":
+        for reg in regions:
+            if reg[0] == args["region"] or reg[1] == args["region"]:
+                return reg
+    
+    if size > 0:
+        index = seed % size
+        return regions[index]
+
+    return region
+
+def getPhoneNumber(seed, region, args):
+
+    phone = region[2]
+    indicatifs = region[3].split("-")
+    size = len(indicatifs)
+
+    indicatif = "00"
+
+    if size > 0:
+        index = seed % size
+        indicatif = indicatifs[index]
+
+    phone += "-" + indicatif
+
+    for i in range(3):
+        
+        number = random.randrange(0, 100)
+
+        if number < 10:
+            phone += "-0" + str(number) 
+        else:
+            phone += "-" + str(number)
+    
+    return phone
+
+def getCellphoneNumber(seed, args):
+
+    phone = "0" + str(random.randrange(6, 8))
+
+    for i in range(4):
+    
+        number = random.randrange(0, 100)
+
+        if number < 10:
+            phone += "-0" + str(number) 
+        else:
+            phone += "-" + str(number)
+
+    return phone
+
+def generateUser(seed, id, femaleFirstName, maleFirstName, lastnames, regions, args):
 
     firstnames = []
     gender = getGender(seed, args)
@@ -97,13 +165,18 @@ def generateUser(seed, id, femaleFirstName, maleFirstName, lastnames, args):
         firstnames = numpy.append(firstnames, femaleFirstName)
         firstnames = numpy.append(firstnames, maleFirstName)
 
+    region = getRegion(seed, regions, args)
+
     result = {
         "id": id,
         "uuid": uuid.uuid4(),
         "gender": gender,
         "firstName": getName(seed, "firstname", firstnames, args),
         "lastName": getName(seed, "lastname", lastnames, args),
-        "age": getAge(seed, args)
+        "age": getAge(seed, args),
+        "region": {"id": region[0], "name": region[1]},
+        "phone": getPhoneNumber(seed, region, args),
+        "cellphone": getCellphoneNumber(seed, args)
     }
     
     return result
@@ -123,6 +196,11 @@ def allLastName():
     content = request.json
     return jsonify(loadName(lastNamePath))
 
+@app.route('/api/regions', methods=['GET'])
+def allRegions():
+    content = request.json
+    return jsonify(loadRegion(regionPath))
+
 @app.route('/api/users', methods=['GET'])
 def allUsers():
     content = request.json
@@ -133,7 +211,8 @@ def allUsers():
     femaleFirstName = loadName(femaleFirstNamePath)
     maleFirstName = loadName(maleFirstNamePath)
     lastName = loadName(lastNamePath)
-    
+    regions = loadRegion(regionPath)
+
     n = 0
     if 'n' in args and args["n"].isdigit():
         n = int(args["n"])
@@ -144,7 +223,7 @@ def allUsers():
     users = []
     for i in range(0, n):
         seed = random.randrange(100000, 1000000)
-        users.append(generateUser(seed, i, femaleFirstName, maleFirstName, lastName, args))
+        users.append(generateUser(seed, i, femaleFirstName, maleFirstName, lastName, regions, args))
 
     return jsonify(users)
 
@@ -159,7 +238,6 @@ def handle_exception(e):
     response.content_type = "application/json"
     return response
 
-    
 @app.route('/') 
 def home():
     homePage = open("README.md", "r")

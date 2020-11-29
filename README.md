@@ -7,7 +7,7 @@ v0.1
 ## Install
 
 ```
-sudo pip install Flask Werkzeug PyYAML numpy markdown
+sudo pip install Flask Werkzeug PyYAML numpy markdown csv
 ```
 
 ## Run
@@ -39,20 +39,27 @@ flask run
 
 5. **age** (int) : The age of users. We accept multiple value.
 
-6. **age[]** (array) : The age range for users withmin & max value in array.
+6. **age[]** (array) : The age range for users with min & max value in array.
 
+7. **region** (int||string): If you want specific region. Id or name is accepted.
 
 ## Output exemple
 
 ```
 [
   {
-    "age": 30, 
-    "firstName": "Emmy", 
-    "gender": "femme", 
-    "id": 0, 
-    "lastName": "Michel", 
-    "uuid": "f9f3e42c-a879-4f99-9cbb-04f75d48dfa8"
+    "age": 27, 
+    "cellphone": "06-74-05-37-74", 
+    "firstName": "Nolan", 
+    "gender": "homme", 
+    "id": 9, 
+    "lastName": "Menard", 
+    "phone": "03-84-61-80-47", 
+    "region": {
+      "id": "39", 
+      "name": "Jura"
+    }, 
+    "uuid": "a4fb20d5-a349-4772-8110-da6a9d17da0b"
   }
 ]
 ```
@@ -67,3 +74,6 @@ flask run
 
 3. All female first name: <br/>
     ```/api/lastname```
+
+4. All regions: <br/>
+    ```/api/regions```
