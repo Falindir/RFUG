@@ -20,17 +20,18 @@ femaleFirstNamePath = os.path.join(basedir, 'data/female_first_name.yaml')
 maleFirstNamePath = os.path.join(basedir, 'data/male_first_name.yaml')
 lastNamePath = os.path.join(basedir, 'data/last_name.yaml')
 regionPath = os.path.join(basedir, 'data/region.csv')
+cityPath = os.path.join(basedir, 'data/city.csv')
 
 def printd(message):
     if(DEBUG):
         print(message)
 
 def loadName(path):
-    results = []
     if os.path.exists(path) and os.path.isfile(path):
         with open(path, 'r') as yaml_stream:
             data = yaml.load(yaml_stream, Loader=yaml.SafeLoader)['name']
             return sorted(data, key=lambda k: random.random())
+    return []
 
 def loadRegion(path):
     data = []
@@ -40,6 +41,25 @@ def loadRegion(path):
             next(reader, None)  # skip the headers
             for row in reader:
                 data.append(row)
+    
+    return data
+
+def loadCity(path):
+    data = {}
+    if os.path.exists(path) and os.path.isfile(path):
+        with open(path) as csvfile:
+            reader = csv.reader(csvfile, delimiter=',')
+            next(reader, None)  # skip the headers
+            for row in reader:
+                key = str(row[0])
+
+                if len(key) == 1:
+                    key = "0"+key
+
+                if key not in data:
+                    data[key] = []
+
+                data[key].append(row)
     
     return data
 
@@ -126,7 +146,7 @@ def getPhoneNumber(seed, region, args):
 
     phone += "-" + indicatif
 
-    for i in range(3):
+    for _ in range(3):
         
         number = random.randrange(0, 100)
 
@@ -141,7 +161,7 @@ def getCellphoneNumber(seed, args):
 
     phone = "0" + str(random.randrange(6, 8))
 
-    for i in range(4):
+    for _ in range(4):
     
         number = random.randrange(0, 100)
 
@@ -152,7 +172,17 @@ def getCellphoneNumber(seed, args):
 
     return phone
 
-def generateUser(seed, id, femaleFirstName, maleFirstName, lastnames, regions, args):
+def getCity(seed, cities, args):
+    
+    size = len(cities)
+
+    if size > 0:
+        index = seed % size
+        return cities[index]
+
+    return["0", "xxx", "XXX", "0", "0"]
+
+def generateUser(seed, id, femaleFirstName, maleFirstName, lastnames, regions, cities, args):
 
     firstnames = []
     gender = getGender(seed, args)
@@ -167,6 +197,10 @@ def generateUser(seed, id, femaleFirstName, maleFirstName, lastnames, regions, a
 
     region = getRegion(seed, regions, args)
 
+    city = getCity(seed, cities[region[0]], args)
+
+    print(city)
+
     result = {
         "id": id,
         "uuid": uuid.uuid4(),
@@ -175,6 +209,7 @@ def generateUser(seed, id, femaleFirstName, maleFirstName, lastnames, regions, a
         "lastName": getName(seed, "lastname", lastnames, args),
         "age": getAge(seed, args),
         "region": {"id": region[0], "name": region[1]},
+        "city": {"id": city[1], "name": city[2], "postalcode": city[3], "INSEE": city[4]},
         "phone": getPhoneNumber(seed, region, args),
         "cellphone": getCellphoneNumber(seed, args)
     }
@@ -201,6 +236,19 @@ def allRegions():
     content = request.json
     return jsonify(loadRegion(regionPath))
 
+@app.route('/api/cities', methods=['GET'])
+def allCities():
+    content = request.json
+    args = request.args
+
+    cities = loadCity(cityPath)
+
+    if 'dep' in args and args["dep"] != "":
+        if args["dep"] in cities:
+            return jsonify(cities[args["dep"]])
+
+    return jsonify(cities)
+
 @app.route('/api/users', methods=['GET'])
 def allUsers():
     content = request.json
@@ -212,6 +260,7 @@ def allUsers():
     maleFirstName = loadName(maleFirstNamePath)
     lastName = loadName(lastNamePath)
     regions = loadRegion(regionPath)
+    cities = loadCity(cityPath)
 
     n = 0
     if 'n' in args and args["n"].isdigit():
@@ -223,7 +272,7 @@ def allUsers():
     users = []
     for i in range(0, n):
         seed = random.randrange(100000, 1000000)
-        users.append(generateUser(seed, i, femaleFirstName, maleFirstName, lastName, regions, args))
+        users.append(generateUser(seed, i, femaleFirstName, maleFirstName, lastName, regions, cities, args))
 
     return jsonify(users)
 
