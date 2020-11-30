@@ -2,7 +2,7 @@
 
 ## Version
 
-v0.2
+v0.3
 
 ## Install
 
@@ -13,9 +13,7 @@ sudo pip install Flask Werkzeug PyYAML numpy markdown
 ## Run
 
 ```
-export FLASK_APP=main.py
-export FLASK_ENV=development
-flask run
+./run.sh
 ```
 
 ## Usage
@@ -48,18 +46,24 @@ flask run
 ```
 [
   {
-    "age": 27, 
-    "cellphone": "06-74-05-37-74", 
-    "firstName": "Nolan", 
+    "age": 71, 
+    "cellphone": "06-80-62-37-20", 
+    "city": {
+      "INSEE": "93055", 
+      "id": "pantin", 
+      "name": "Pantin", 
+      "postalcode": "93500"
+    }, 
+    "firstName": "Gaspard", 
     "gender": "homme", 
     "id": 9, 
-    "lastName": "Menard", 
-    "phone": "03-84-61-80-47", 
+    "lastName": "Bertin", 
+    "phone": "01-43-84-76-18", 
     "region": {
-      "id": "39", 
-      "name": "Jura"
+      "id": "93", 
+      "name": "Seine-Saint-Denis"
     }, 
-    "uuid": "a4fb20d5-a349-4772-8110-da6a9d17da0b"
+    "uuid": "40c670fc-cb2d-497a-b60a-30f99f20b269"
   }
 ]
 ```
@@ -77,3 +81,8 @@ flask run
 
 4. All regions: <br/>
     ```/api/regions```
+
+4. All cities: <br/>
+    ```/api/cities```<br/>
+    
+    With department id : ```/api/cities?dep=30```
