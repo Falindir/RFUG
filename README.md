@@ -2,7 +2,7 @@
 
 ## Version
 
-v0.4
+v0.4.1
 
 ## Install
 
@@ -29,8 +29,7 @@ sudo pip install Flask Werkzeug PyYAML numpy markdown
   function generateUsers(n) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
-      if (this.readyState == 4 && this.status == 200) {
-          return 
+      if (this.readyState == 4 && this.status == 200) { 
           console.log(this.responseText);
       }
     };
