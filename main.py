@@ -21,6 +21,7 @@ maleFirstNamePath = os.path.join(basedir, 'data/male_first_name.yaml')
 lastNamePath = os.path.join(basedir, 'data/last_name.yaml')
 regionPath = os.path.join(basedir, 'data/region.csv')
 cityPath = os.path.join(basedir, 'data/city.csv')
+EMAIL_HOSTS = ["gmail.com", "orange.fr", "yahoo.fr", "laposte.net", "club-internet.fr", "sfr.fr", "neuf.fr"]
 
 def printd(message):
     if(DEBUG):
@@ -182,6 +183,17 @@ def getCity(seed, cities, args):
 
     return["0", "xxx", "XXX", "0", "0"]
 
+def getEmail(seed, firstname, lastname, args):
+
+    host = ""
+
+    if "email" in args and args["email"] != "":
+        host = args["email"]
+    else:
+        host = random.choice(EMAIL_HOSTS)
+
+    return firstname.lower()+"."+lastname.lower()+"@"+host
+
 def generateUser(seed, id, femaleFirstName, maleFirstName, lastnames, regions, cities, args):
 
     firstnames = []
@@ -199,19 +211,21 @@ def generateUser(seed, id, femaleFirstName, maleFirstName, lastnames, regions, c
 
     city = getCity(seed, cities[region[0]], args)
 
-    print(city)
-
+    firstName = getName(seed, "firstname", firstnames, args)
+    lastName = getName(seed, "lastname", lastnames, args)
     result = {
         "id": id,
         "uuid": uuid.uuid4(),
         "gender": gender,
-        "firstName": getName(seed, "firstname", firstnames, args),
-        "lastName": getName(seed, "lastname", lastnames, args),
+        "firstName": firstName,
+        "lastName": lastName,
         "age": getAge(seed, args),
         "region": {"id": region[0], "name": region[1]},
         "city": {"id": city[1], "name": city[2], "postalcode": city[3], "INSEE": city[4]},
         "phone": getPhoneNumber(seed, region, args),
-        "cellphone": getCellphoneNumber(seed, args)
+        "cellphone": getCellphoneNumber(seed, args),
+        "email": getEmail(seed, firstName, lastName, args),
+        "country": "France"
     }
     
     return result
@@ -248,6 +262,11 @@ def allCities():
             return jsonify(cities[args["dep"]])
 
     return jsonify(cities)
+
+@app.route('/api/emails', methods=['GET'])
+def allEmails():
+    content = request.json
+    return jsonify(EMAIL_HOSTS)
 
 @app.route('/api/users', methods=['GET'])
 def allUsers():

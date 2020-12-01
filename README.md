@@ -2,7 +2,7 @@
 
 ## Version
 
-v0.3
+v0.4
 
 ## Install
 
@@ -24,6 +24,23 @@ sudo pip install Flask Werkzeug PyYAML numpy markdown
     ```curl -i http://localhost:5000/api/users?n=10```
 
 
+2. With AJAX:<br/>
+```javascript
+  function generateUsers(n) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+          return 
+          console.log(this.responseText);
+      }
+    };
+    xhttp.open("GET", "http://localhost:5000/api/users?n="+n, true);
+    xhttp.send();
+  }
+  
+  generateUsers(10);
+```
+
 ## Parameters
 
 1. **n** (int) : The number of users generate.
@@ -41,29 +58,33 @@ sudo pip install Flask Werkzeug PyYAML numpy markdown
 
 7. **region** (int||string): If you want specific region. Id or name is accepted.
 
+8. **email** (string): If you want specific email host.
+
 ## Output exemple
 
 ```
 [
   {
-    "age": 71, 
-    "cellphone": "06-80-62-37-20", 
+    "age": 55, 
+    "cellphone": "07-77-89-18-38", 
     "city": {
-      "INSEE": "93055", 
-      "id": "pantin", 
-      "name": "Pantin", 
-      "postalcode": "93500"
+      "INSEE": "73258", 
+      "id": "saint-martin-de-la-porte", 
+      "name": "Saint-Martin-de-la-Porte", 
+      "postalcode": "73140"
     }, 
-    "firstName": "Gaspard", 
+    "country": "France", 
+    "email": "pablo.breton@yahoo.fr", 
+    "firstName": "Pablo", 
     "gender": "homme", 
     "id": 9, 
-    "lastName": "Bertin", 
-    "phone": "01-43-84-76-18", 
+    "lastName": "Breton", 
+    "phone": "04-57-27-19-09", 
     "region": {
-      "id": "93", 
-      "name": "Seine-Saint-Denis"
+      "id": "73", 
+      "name": "Savoie"
     }, 
-    "uuid": "40c670fc-cb2d-497a-b60a-30f99f20b269"
+    "uuid": "f1011c8a-1559-4c14-b5fc-fcd8f924986b"
   }
 ]
 ```
