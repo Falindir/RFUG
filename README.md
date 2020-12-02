@@ -10,10 +10,22 @@ v0.4.1
 sudo pip install Flask Werkzeug PyYAML numpy markdown
 ```
 
+### Optional for tests
+
+```
+sudo pip install pytest
+```
+
 ## Run
 
 ```
 ./run.sh
+```
+
+## Tests
+
+```
+./test.sh
 ```
 
 ## Usage
@@ -38,6 +50,15 @@ sudo pip install Flask Werkzeug PyYAML numpy markdown
   }
   
   generateUsers(10);
+```
+
+3. With Python:<br/>
+```Python
+import requests
+
+response = requests.get("http://localhost:5000/api/users?n=10")
+if response.status_code == 200:
+  print(response.json())
 ```
 
 ## Parameters
