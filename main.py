@@ -22,6 +22,7 @@ lastNamePath = os.path.join(basedir, 'data/last_name.yaml')
 regionPath = os.path.join(basedir, 'data/region.csv')
 cityPath = os.path.join(basedir, 'data/city.csv')
 EMAIL_HOSTS = ["gmail.com", "orange.fr", "yahoo.fr", "laposte.net", "club-internet.fr", "sfr.fr", "neuf.fr"]
+FAMILY_SITUATION = [{"value": "marié", "code": "M"},{"value": "pacsé", "code": "O"},{"value": "divorcé", "code": "D"},{"value": "séparé", "code": "D"},{"value": "célibataire", "code": "C"},{"value": "veuf", "code": "V"}]
 
 def printd(message):
     if(DEBUG):
@@ -194,6 +195,40 @@ def getEmail(seed, firstname, lastname, args):
 
     return firstname.lower()+"."+lastname.lower()+"@"+host
 
+def getFamilySituation(seed, args):
+
+    if "familysituation" in args and args["familysituation"] != "":
+        for fs in FAMILY_SITUATION:
+            if fs["code"] == args["familysituation"] or fs["value"] == args["familysituation"]:
+                return fs
+
+    return random.choice(FAMILY_SITUATION)
+
+def getProbaChildren(code, deep):
+
+    if code == "M": 
+        return 80 / deep
+    
+    elif code == "O": 
+        return 30 / deep
+    
+    elif code == "D": 
+        return 50 / deep
+        
+    elif code == "C": 
+        return 10 / deep
+    
+    elif code == "V": 
+        return 45 / deep
+
+    return 0
+
+def getNumberChildren(seed, code, deep, args):
+    if random.randrange(1, 101) <= getProbaChildren(code, deep):
+        return 1 + getNumberChildren(seed, code, deep+1, args)
+
+    return 0
+
 def generateUser(seed, id, femaleFirstName, maleFirstName, lastnames, regions, cities, args):
 
     firstnames = []
@@ -213,18 +248,30 @@ def generateUser(seed, id, femaleFirstName, maleFirstName, lastnames, regions, c
 
     firstName = getName(seed, "firstname", firstnames, args)
     lastName = getName(seed, "lastname", lastnames, args)
+
+    age = getAge(seed, args)
+    familySituation = getFamilySituation(seed, args)
+    children = getNumberChildren(seed, familySituation["code"], 1, args)
+
+    if age < 16:
+        familySituation = {"value": "célibataire", "code": "C"}
+    
+        if age < 12:
+            children = 0
+
     result = {
         "id": id,
         "uuid": uuid.uuid4(),
         "gender": gender,
         "firstName": firstName,
         "lastName": lastName,
-        "age": getAge(seed, args),
+        "age": age,
         "region": {"id": region[0], "name": region[1]},
         "city": {"id": city[1], "name": city[2], "postalcode": city[3], "INSEE": city[4]},
         "phone": getPhoneNumber(seed, region, args),
         "cellphone": getCellphoneNumber(seed, args),
         "email": getEmail(seed, firstName, lastName, args),
+        "family": {"situation": familySituation, "children": children},
         "country": "France"
     }
     
@@ -267,6 +314,14 @@ def allCities():
 def allEmails():
     content = request.json
     return jsonify(EMAIL_HOSTS)
+
+
+@app.route('/api/family/situation', methods=['GET'])
+def allFamilySituation():
+    content = request.json
+    return jsonify(FAMILY_SITUATION)
+
+
 
 @app.route('/api/users', methods=['GET'])
 def allUsers():
