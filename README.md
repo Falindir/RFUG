@@ -2,7 +2,7 @@
 
 ## Version
 
-v0.4.1
+v0.5
 
 ## Install
 
@@ -10,10 +10,22 @@ v0.4.1
 sudo pip install Flask Werkzeug PyYAML numpy markdown
 ```
 
+### Optional for tests
+
+```
+sudo pip install pytest
+```
+
 ## Run
 
 ```
 ./run.sh
+```
+
+## Tests
+
+```
+./test.sh
 ```
 
 ## Usage
@@ -40,6 +52,15 @@ sudo pip install Flask Werkzeug PyYAML numpy markdown
   generateUsers(10);
 ```
 
+3. With Python:<br/>
+```Python
+import requests
+
+response = requests.get("http://localhost:5000/api/users?n=10")
+if response.status_code == 200:
+  print(response.json())
+```
+
 ## Parameters
 
 1. **n** (int) : The number of users generate.
@@ -59,31 +80,41 @@ sudo pip install Flask Werkzeug PyYAML numpy markdown
 
 8. **email** (string): If you want specific email host.
 
+9. **familysituation** (string): If you want specific family situation (code or value accepted).
+
+
 ## Output exemple
 
 ```
 [
   {
-    "age": 55, 
-    "cellphone": "07-77-89-18-38", 
+    "age": 52, 
+    "cellphone": "07-06-98-48-08", 
     "city": {
-      "INSEE": "73258", 
-      "id": "saint-martin-de-la-porte", 
-      "name": "Saint-Martin-de-la-Porte", 
-      "postalcode": "73140"
+      "INSEE": "31193", 
+      "id": "fousseret", 
+      "name": "Le Fousseret", 
+      "postalcode": "31430"
     }, 
     "country": "France", 
-    "email": "pablo.breton@yahoo.fr", 
-    "firstName": "Pablo", 
+    "email": "charly.bouvier@sfr.fr", 
+    "family": {
+      "children": 1, 
+      "situation": {
+        "code": "V", 
+        "value": "veuf"
+      }
+    }, 
+    "firstName": "Charly", 
     "gender": "homme", 
     "id": 9, 
-    "lastName": "Breton", 
-    "phone": "04-57-27-19-09", 
+    "lastName": "Bouvier", 
+    "phone": "05-82-60-11-02", 
     "region": {
-      "id": "73", 
-      "name": "Savoie"
+      "id": "31", 
+      "name": "Haute-Garonne"
     }, 
-    "uuid": "f1011c8a-1559-4c14-b5fc-fcd8f924986b"
+    "uuid": "19545001-1e92-4abb-8723-dd5541a694c3"
   }
 ]
 ```
@@ -102,7 +133,10 @@ sudo pip install Flask Werkzeug PyYAML numpy markdown
 4. All regions: <br/>
     ```/api/regions```
 
-4. All cities: <br/>
+5. All cities: <br/>
     ```/api/cities```<br/>
     
     With department id : ```/api/cities?dep=30```
+
+6. All family situation: <br/>
+```/api/family/situation```

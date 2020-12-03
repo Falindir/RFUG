@@ -1,0 +1,1 @@
+pytest tests/01_basic_tests.py
